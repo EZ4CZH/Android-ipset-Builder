@@ -9,7 +9,7 @@
 
 如果你不想折腾编译，可以直接使用 GitHub Actions 为你自动打包好的成品：
 1. 进入本仓库的 **Actions** 页面。
-2. 选择左侧的 `构建纯静态 Android 版 ipset`，点击右上角的 `Run workflow` 手动触发。
+2. 选择左侧的 `构建并发布 Android ipset`，点击右上角的 `Run workflow` 手动触发。
 3. 等待约 30 秒钟，下载页面下方的 **`ipset-android-aarch64-latest`** 压缩包即可。
 
 ## 💻 本地克隆与一键编译
