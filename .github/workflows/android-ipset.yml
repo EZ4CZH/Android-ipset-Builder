@@ -1,1 +1,41 @@
+name: 构建并发布 Android ipset
 
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 1 * *'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: 检出项目代码
+        uses: actions/checkout@v5
+
+      - name: 编译并执行构建器
+        run: |
+          make
+          VER=$(ls output/ipset-android-v*.zip | grep -oE 'v[0-9\.]+' | sed 's/\.*$//' | head -1)
+          echo "VERSION=$VER" >> $GITHUB_ENV
+
+      - name: 自动发布 Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if ! gh release view ${{ env.VERSION }} >/dev/null 2>&1; then
+            gh release create "${{ env.VERSION }}" \
+              ./output/*.zip \
+              --title "Android ipset ${{ env.VERSION }}" \
+              --notes "### 📱 构建说明
+              - **版本**: ${{ env.VERSION }}
+              - **内容**: 包含 ‘ipset’ (aarch64 静态版) 和最新的 ‘chnroute.txt’。
+              - **状态**: 自动按月巡检更新。"
+          else
+            echo "版本 ${{ env.VERSION }} 已经存在，本次跳过发布。"
+          fi
